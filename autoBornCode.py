@@ -191,6 +191,7 @@ class MapperType(Enum):
     array = 1
     map_md5 = 2
     map_relative_path = 3
+    map_path_name = 4
 
 def FileMd5(filename):
     global WINDOWS_LINE_ENDING
@@ -218,6 +219,7 @@ def LoopDir(root_dir, includes, excludes, mapType=MapperType.map_md5):
     global logging
     mapper = {}
     mapperRelativePath = {}
+    mapperPathName = {}
     array = {}
     count = -1
     for root, dirs, files in os.walk(root_dir, topdown=True):
@@ -232,15 +234,20 @@ def LoopDir(root_dir, includes, excludes, mapType=MapperType.map_md5):
                 array[count] = filePath
                 count += 1
                 logging.info(filePath + " [md5] - " + str(md5))
+                nameArray = filePath.split('/')
+                for name in nameArray:
+                    mapperPathName[name] = True
     if mapType == MapperType.array:
         return array
     elif mapType == MapperType.map_md5:
         return mapper
     elif mapType == MapperType.map_relative_path:
         return mapperRelativePath
+    elseif mapType == MapperType.map_path_name:
+        return mapperPathName
 
 def Process(directory):
-    return LoopDir(directory, ["*.png", "*.jpg"], [])
+    return LoopDir(directory, ["*.png", "*.jpg", ".plist"], [], MapperType.map_path_name)
 
 def ResourceProcess(res_dir, target_dir):
     global resource_path, target_path
@@ -248,6 +255,7 @@ def ResourceProcess(res_dir, target_dir):
     target_path = target_dir
 
     # 生成文件映射表
+    mappers = Process(res_dir)
     
 
     if not os.path.exists(resource_path):
