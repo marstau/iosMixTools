@@ -256,9 +256,8 @@ def ResourceProcess(res_dir, target_dir):
         shutil.copytree(resource_path, target_path)
     
     addFileTo(target_path, 0)
-    logging.info("\n\nstart modify file md5")
+    logging.info("\n\n末尾加上随机字符串,修改md5值")
     changeFolderMD5(target_path)
-    # mapper1 = Process(uFromPath)
     logging.info("finish!")
 
 def switch(var, opts):
