@@ -247,6 +247,9 @@ def ResourceProcess(res_dir, target_dir):
     resource_path = res_dir
     target_path = target_dir
 
+    # 生成文件映射表
+    
+
     if not os.path.exists(resource_path):
         logging.info("res path not exists: " + resource_path)
         exit(0)
