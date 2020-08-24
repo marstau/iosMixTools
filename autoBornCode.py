@@ -243,7 +243,7 @@ def LoopDir(root_dir, includes, excludes, mapType=MapperType.map_md5):
         return mapper
     elif mapType == MapperType.map_relative_path:
         return mapperRelativePath
-    elseif mapType == MapperType.map_path_name:
+    elif mapType == MapperType.map_path_name:
         return mapperPathName
 
 def Process(directory):
@@ -251,12 +251,15 @@ def Process(directory):
 
 def ResourceProcess(res_dir, target_dir):
     global resource_path, target_path
+    global logging
     resource_path = res_dir
     target_path = target_dir
 
     # 生成文件映射表
     mappers = Process(res_dir)
-    
+    for k, v in mappers.items():
+        logging.info("k=" + k)
+
 
     if not os.path.exists(resource_path):
         logging.info("res path not exists: " + resource_path)
