@@ -192,6 +192,7 @@ class MapperType(Enum):
     map_md5 = 2
     map_relative_path = 3
     map_path_name = 4
+    map_path = 5
 
 def FileMd5(filename):
     global WINDOWS_LINE_ENDING
@@ -220,6 +221,7 @@ def LoopDir(root_dir, includes, excludes, mapType=MapperType.map_md5):
     mapper = {}
     mapperRelativePath = {}
     mapperPathName = {}
+    mapperPath = {}
     array = {}
     count = -1
     for root, dirs, files in os.walk(root_dir, topdown=True):
@@ -231,6 +233,7 @@ def LoopDir(root_dir, includes, excludes, mapType=MapperType.map_md5):
                 md5 = FileMd5(filePath)
                 mapper[str(md5)] = filePath
                 mapperRelativePath[filePath.replace(root_dir, "")] = str(md5)
+                mapperPath[filePath] = str(md5)
                 array[count] = filePath
                 count += 1
                 logging.info(filePath + " [md5] - " + str(md5))
@@ -247,10 +250,24 @@ def LoopDir(root_dir, includes, excludes, mapType=MapperType.map_md5):
         return mapperRelativePath
     elif mapType == MapperType.map_path_name:
         return mapperPathName
+    elif mapType == MapperType.map_path:
+        return mapperPath
 
-def Process(directory):
+def ProcessPathName(directory):
     return LoopDir(directory, ["*.png", "*.jpg", ".plist"], [], MapperType.map_path_name)
 
+def ProcessMapperPath(directory):
+    return LoopDir(directory, ["*.png", "*.jpg", ".plist"], [], MapperType.map_path)
+
+
+def shuffle(lis):
+    result = []
+    while lis:
+        p = random.randrange(0, len(lis))
+        result.append(lis[p])
+        lis.pop(p)
+    return result
+ 
 def ResourceProcess(res_dir, target_dir):
     global resource_path, target_path
     global logging
@@ -258,9 +275,42 @@ def ResourceProcess(res_dir, target_dir):
     target_path = target_dir
 
     # 生成文件映射表
-    mappers = Process(res_dir)
-    for k, v in mappers.items():
-        logging.info("k=" + k)
+    # mappers = ProcessPathName(res_dir)
+    # count = 0
+    # f = open("mm","w")
+    # for k, v in mappers.items():
+    #     count += 1
+    #     targetStr = "".join(random.sample(string.ascii_letters, len(k)))
+    #     mappers[k] = targetStr
+    #     logging.info("k=" + k + ", len=" + str(len(k)) + ", targetStr=" + str(targetStr) + ", mappers[k]=" + mappers[k])
+    #     f.write(k+","+mappers[k]+"\n")
+    # f.close()
+
+    # mapperPath = ProcessMapperPath(res_dir)
+    # for path, v in mapperPath.items():
+    #     startPos = 0
+    #     for subPos in re.finditer(r'[./\\]', path):
+    #         logging.info("subPos=" + str(subPos.group()) + ", span=" + str(subPos.span()))
+    originChars = []
+    lis = []
+    logging.info("ord=" + str(ord("A")) + ", " + str(ord('z')))
+    for i in range(ord('a'), ord('z')):
+        lis.append(i)
+        originChars.append(i)
+
+    for i in range(ord('A'), ord('Z')):
+        lis.append(i)
+        originChars.append(i)
+
+    r = shuffle(lis)
+    logging.info(str(r) + ", lis len=" + str(len(lis)))
+
+    mapper = {}
+    for i in range(len(originChars)):
+        c = chr(originChars[i])
+        mapper[c] = chr(r[i])
+        logging.info("mapper=" + c + "," + mapper[c])
+
 
 
     if not os.path.exists(resource_path):
@@ -274,6 +324,10 @@ def ResourceProcess(res_dir, target_dir):
     addFileTo(target_path, 0)
     logging.info("\n\n末尾加上随机字符串,修改md5值")
     changeFolderMD5(target_path)
+
+
+    # 批量修改文件名
+
     logging.info("finish!")
 
 def switch(var, opts):
