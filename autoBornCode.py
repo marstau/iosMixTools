@@ -234,9 +234,11 @@ def LoopDir(root_dir, includes, excludes, mapType=MapperType.map_md5):
                 array[count] = filePath
                 count += 1
                 logging.info(filePath + " [md5] - " + str(md5))
-                nameArray = filePath.split('/')
+                nameArray = re.split(r'[./\\]', filePath)
                 for name in nameArray:
-                    mapperPathName[name] = True
+                    if name != "":
+                        logging.info("name=" + name)
+                        mapperPathName[name] = True
     if mapType == MapperType.array:
         return array
     elif mapType == MapperType.map_md5:
